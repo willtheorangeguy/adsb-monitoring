@@ -1,0 +1,18 @@
+
+[Unit]
+Description=JSON Exporter for dump1090-fa
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+ExecStart=/usr/local/bin/json_exporter --config.file=/etc/adsb-json-exporter.yml --web.listen-address=:9799
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

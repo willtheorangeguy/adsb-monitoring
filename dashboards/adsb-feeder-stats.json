@@ -1,0 +1,739 @@
+{
+  "uid": "adsb-feeder-stats",
+  "title": "ADS-B Feeder & Receiver Stats",
+  "description": "Receiver and feeder health, adapted from Grafana 18398 for this dump1090-fa backend. Ultrafeeder/readsb-only UAT, range, SNR and aircraft-model panels are intentionally omitted because this receiver does not expose those values.",
+  "tags": [
+    "ads-b",
+    "receiver",
+    "feeder"
+  ],
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": false,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Aircraft in View",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_in_view{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Aircraft with Position",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_position_available{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Messages / second",
+      "description": "Completed decoder window, normalized by its actual duration.",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_messages_last1m / (adsb_stats_window_end_seconds - adsb_stats_window_start_seconds)",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Tracks / min",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_tracks_last1m",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Signal / Noise",
+      "description": "Mean signal and noise level over the completed decoder window; these are dBFS values, not an independently calculated SNR.",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_signal_dbfs",
+          "legendFormat": "Signal",
+          "instant": true
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_noise_dbfs",
+          "legendFormat": "Noise",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dB"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Receiver Gain",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_receiver_gain_db",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dB"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Aircraft Counts",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_in_view{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "legendFormat": "In view"
+        },
+        {
+          "refId": "B",
+          "expr": "count(adsb_aircraft_position_available{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "legendFormat": "With position"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Message & Track Rate",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_messages_last1m / (adsb_stats_window_end_seconds - adsb_stats_window_start_seconds)",
+          "legendFormat": "Messages/s"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_tracks_last1m / (adsb_stats_window_end_seconds - adsb_stats_window_start_seconds)",
+          "legendFormat": "Tracks/s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Signal, Noise & Peak",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_signal_dbfs",
+          "legendFormat": "Mean signal"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_noise_dbfs",
+          "legendFormat": "Mean noise"
+        },
+        {
+          "refId": "C",
+          "expr": "adsb_peak_signal_dbfs",
+          "legendFormat": "Peak signal"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dB"
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Position Decode Outcomes",
+      "description": "CPR decodes in the completed minute; not guaranteed positions delivered to feeder sites.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_cpr_global_ok_last1m",
+          "legendFormat": "Global OK"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_cpr_local_ok_last1m",
+          "legendFormat": "Local OK"
+        },
+        {
+          "refId": "C",
+          "expr": "adsb_cpr_global_bad_last1m",
+          "legendFormat": "Global bad"
+        },
+        {
+          "refId": "D",
+          "expr": "adsb_cpr_global_range_last1m + adsb_cpr_global_speed_last1m + adsb_cpr_local_range_last1m + adsb_cpr_local_speed_last1m",
+          "legendFormat": "Range/speed rejected"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Decoder Input Quality",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_local_accepted_zero_bit_last1m",
+          "legendFormat": "Accepted without correction"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_local_accepted_one_bit_last1m",
+          "legendFormat": "Accepted with 1-bit correction"
+        },
+        {
+          "refId": "C",
+          "expr": "adsb_local_bad_last1m",
+          "legendFormat": "Bad"
+        },
+        {
+          "refId": "D",
+          "expr": "adsb_local_unknown_icao_last1m",
+          "legendFormat": "Unknown ICAO"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Sample Drops & Strong Signals",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_samples_dropped_last1m",
+          "legendFormat": "Dropped samples"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_strong_signals_last1m",
+          "legendFormat": "Strong signals"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Receiver Gain & Changes",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_receiver_gain_db",
+          "legendFormat": "Gain dB"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_adaptive_gain_changes_last1m",
+          "legendFormat": "Adaptive changes/min"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Decoder CPU Time",
+      "description": "dump1090-fa per-window CPU milliseconds, not LXC CPU utilization.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_decoder_cpu_demod_ms_last1m",
+          "legendFormat": "Demodulation"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_decoder_cpu_reader_ms_last1m",
+          "legendFormat": "Reader"
+        },
+        {
+          "refId": "C",
+          "expr": "adsb_decoder_cpu_background_ms_last1m",
+          "legendFormat": "Background"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Track Reliability",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_tracks_last1m",
+          "legendFormat": "All tracks"
+        },
+        {
+          "refId": "B",
+          "expr": "adsb_tracks_single_message_last1m",
+          "legendFormat": "Single message"
+        },
+        {
+          "refId": "C",
+          "expr": "adsb_tracks_unreliable_last1m",
+          "legendFormat": "Unreliable"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Cumulative Decoder Messages",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_receiver_messages_total",
+          "legendFormat": "Messages since decoder start"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "Feeder & MLAT Services",
+      "description": "Systemd active state only. Active does not prove a remote feeding site accepted data.",
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_systemd_unit_state{instance=\"$feeder_instance\",state=\"active\",name=~\"$feeder_unit_regex\"}",
+          "legendFormat": "{{name}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Inactive",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "Active",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "horizontal"
+      }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "prometheus_ds",
+        "label": "Prometheus data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "hide": 0,
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "job_adsb_receiver_aircraft",
+        "label": "Prometheus job: adsb-receiver-aircraft",
+        "type": "textbox",
+        "query": "adsb-receiver-aircraft",
+        "hide": 0,
+        "refresh": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "adsb-receiver-aircraft",
+          "value": "adsb-receiver-aircraft"
+        }
+      },
+      {
+        "name": "feeder_instance",
+        "label": "Node Exporter instance",
+        "type": "query",
+        "query": {
+          "query": "label_values(node_systemd_unit_state, instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "hide": 0,
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheus_ds}"
+        }
+      },
+      {
+        "name": "feeder_unit_regex",
+        "label": "Feeder service unit regex",
+        "type": "textbox",
+        "query": ".*(feed|feeder|mlat|piaware|pfclient|fr24).*\\\\.service",
+        "current": {
+          "text": ".*(feed|feeder|mlat|piaware|pfclient|fr24).*\\\\.service",
+          "value": ".*(feed|feeder|mlat|piaware|pfclient|fr24).*\\\\.service"
+        },
+        "hide": 0,
+        "refresh": 0,
+        "multi": false,
+        "includeAll": false
+      }
+    ]
+  }
+}

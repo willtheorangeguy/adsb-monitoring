@@ -1,0 +1,531 @@
+{
+  "uid": "adsb-aircraft-viewer",
+  "title": "ADS-B Aircraft Viewer",
+  "description": "Live aircraft map and flight details from dump1090-fa aircraft.json, adapted from the supplied ADS-B Overview layout. Positions are live snapshots, not historical tracks.",
+  "tags": [
+    "ads-b",
+    "aircraft",
+    "live"
+  ],
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": false,
+  "refresh": "10s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "geomap",
+      "title": "Current Flights",
+      "gridPos": {
+        "h": 17,
+        "w": 18,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${infinity_ds}"
+          },
+          "type": "json",
+          "source": "url",
+          "parser": "backend",
+          "format": "table",
+          "url": "${aircraft_json_url}",
+          "url_options": {
+            "method": "GET"
+          },
+          "root_selector": "$.aircraft[lat and lon and seen_pos < 60]",
+          "columns": [
+            {
+              "selector": "lat",
+              "text": "Latitude",
+              "type": "number"
+            },
+            {
+              "selector": "lon",
+              "text": "Longitude",
+              "type": "number"
+            },
+            {
+              "selector": "flight",
+              "text": "Flight",
+              "type": "string"
+            },
+            {
+              "selector": "hex",
+              "text": "ICAO",
+              "type": "string"
+            },
+            {
+              "selector": "alt_baro",
+              "text": "Altitude ft",
+              "type": "number"
+            },
+            {
+              "selector": "gs",
+              "text": "Ground speed kt",
+              "type": "number"
+            },
+            {
+              "selector": "track",
+              "text": "Track deg",
+              "type": "number"
+            },
+            {
+              "selector": "squawk",
+              "text": "Squawk",
+              "type": "string"
+            },
+            {
+              "selector": "seen_pos",
+              "text": "Position age s",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "options": {
+        "view": {
+          "id": "coords",
+          "lat": 0,
+          "lon": 0,
+          "zoom": 2
+        },
+        "basemap": {
+          "type": "default",
+          "name": "Base map",
+          "config": {}
+        },
+        "controls": {
+          "showZoom": true,
+          "mouseWheelZoom": true,
+          "showAttribution": true
+        },
+        "tooltip": {
+          "mode": "details"
+        },
+        "layers": [
+          {
+            "type": "markers",
+            "name": "Aircraft with recent position",
+            "tooltip": true,
+            "config": {
+              "showLegend": false,
+              "style": {
+                "symbol": {
+                  "mode": "fixed",
+                  "fixed": "img/icons/marker/plane.svg"
+                },
+                "size": {
+                  "fixed": 12
+                },
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "text": {
+                  "mode": "field",
+                  "field": "Flight"
+                },
+                "rotation": {
+                  "mode": "mod",
+                  "field": "Track deg"
+                }
+              }
+            },
+            "location": {
+              "mode": "coords",
+              "latitude": "Latitude",
+              "longitude": "Longitude"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Aircraft in View",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_in_view{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Aircraft with Position",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_position_available{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Receiver Messages / min",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "adsb_messages_last1m{job=\"${job_adsb_receiver_stats}\"}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Snapshot Age",
+      "description": "Age of the last Prometheus aircraft snapshot, not the age of a particular aircraft position.",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - adsb_aircraft_snapshot_seconds{job=\"${job_adsb_receiver_aircraft}\"}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "Current Flight Details",
+      "description": "Live aircraft rows; aircraft without a recent position remain in the receiver count but not this table.",
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${infinity_ds}"
+          },
+          "type": "json",
+          "source": "url",
+          "parser": "backend",
+          "format": "table",
+          "url": "${aircraft_json_url}",
+          "url_options": {
+            "method": "GET"
+          },
+          "root_selector": "$.aircraft[lat and lon and seen_pos < 60]",
+          "columns": [
+            {
+              "selector": "flight",
+              "text": "Flight",
+              "type": "string"
+            },
+            {
+              "selector": "hex",
+              "text": "ICAO",
+              "type": "string"
+            },
+            {
+              "selector": "squawk",
+              "text": "Squawk",
+              "type": "string"
+            },
+            {
+              "selector": "alt_baro",
+              "text": "Altitude ft",
+              "type": "number"
+            },
+            {
+              "selector": "gs",
+              "text": "Ground speed kt",
+              "type": "number"
+            },
+            {
+              "selector": "track",
+              "text": "Track deg",
+              "type": "number"
+            },
+            {
+              "selector": "lat",
+              "text": "Latitude",
+              "type": "number"
+            },
+            {
+              "selector": "lon",
+              "text": "Longitude",
+              "type": "number"
+            },
+            {
+              "selector": "seen_pos",
+              "text": "Position age s",
+              "type": "number"
+            },
+            {
+              "selector": "rssi",
+              "text": "Signal dBFS",
+              "type": "number"
+            },
+            {
+              "selector": "messages",
+              "text": "Messages",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Aircraft with Callsign",
+      "description": "Aircraft in the current receiver snapshot that advertise a flight callsign.",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_callsign_available{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Emergency Squawk 7700",
+      "description": "Aircraft currently reporting squawk 7700; zero is shown only while the aircraft scrape is healthy.",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_ds}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(adsb_aircraft_emergency_7700_active{job=\"${job_adsb_receiver_aircraft}\"}) or on() (0 * (up{job=\"${job_adsb_receiver_aircraft}\"} == 1))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "prometheus_ds",
+        "label": "Prometheus data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "hide": 0,
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "infinity_ds",
+        "label": "Infinity data source",
+        "type": "datasource",
+        "query": "yesoreyeram-infinity-datasource",
+        "hide": 0,
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "job_adsb_receiver_aircraft",
+        "label": "Prometheus job: adsb-receiver-aircraft",
+        "type": "textbox",
+        "query": "adsb-receiver-aircraft",
+        "hide": 0,
+        "refresh": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "adsb-receiver-aircraft",
+          "value": "adsb-receiver-aircraft"
+        }
+      },
+      {
+        "name": "job_adsb_receiver_stats",
+        "label": "Prometheus job: adsb-receiver-stats",
+        "type": "textbox",
+        "query": "adsb-receiver-stats",
+        "hide": 0,
+        "refresh": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "adsb-receiver-stats",
+          "value": "adsb-receiver-stats"
+        }
+      },
+      {
+        "name": "aircraft_json_url",
+        "label": "Aircraft JSON URL",
+        "type": "textbox",
+        "query": "http://receiver.example:8080/data/aircraft.json",
+        "hide": 0,
+        "refresh": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "http://receiver.example:8080/data/aircraft.json",
+          "value": "http://receiver.example:8080/data/aircraft.json"
+        }
+      }
+    ]
+  }
+}

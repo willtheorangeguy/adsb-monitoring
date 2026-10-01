@@ -1,0 +1,71 @@
+modules:
+  receiver_stats:
+    metrics:
+      - {name: adsb_stats_window_start_seconds, path: '{.last1min.start}', help: 'Start of the completed one-minute decoder statistics window.'}
+      - {name: adsb_stats_window_end_seconds, path: '{.last1min.end}', help: 'End of the completed one-minute decoder statistics window.'}
+      - {name: adsb_messages_last1m, path: '{.last1min.messages}', help: 'Messages received in the completed one-minute decoder window.'}
+      - {name: adsb_tracks_last1m, path: '{.last1min.tracks.all}', help: 'Aircraft tracks observed in the completed one-minute decoder window.'}
+      - {name: adsb_signal_dbfs, path: '{.last1min.local.signal}', help: 'Mean signal level in dBFS over the completed one-minute decoder window.'}
+      - {name: adsb_noise_dbfs, path: '{.last1min.local.noise}', help: 'Mean noise level in dBFS over the completed one-minute decoder window.'}
+      - {name: adsb_peak_signal_dbfs, path: '{.last1min.local.peak_signal}', help: 'Peak signal level in dBFS over the completed one-minute decoder window.'}
+      - {name: adsb_strong_signals_last1m, path: '{.last1min.local.strong_signals}', help: 'Strong signal count in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_global_ok_last1m, path: '{.last1min.cpr.global_ok}', help: 'Successful global CPR decodes in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_global_bad_last1m, path: '{.last1min.cpr.global_bad}', help: 'Failed global CPR decodes in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_local_ok_last1m, path: '{.last1min.cpr.local_ok}', help: 'Successful local CPR decodes in the completed one-minute decoder window.'}
+      - {name: adsb_receiver_messages_total, path: '{.total.messages}', help: 'Messages received since decoder start.'}
+      - {name: adsb_samples_processed_last1m, path: '{.last1min.local.samples_processed}', help: 'Receiver samples processed in the completed one-minute decoder window.'}
+      - {name: adsb_samples_dropped_last1m, path: '{.last1min.local.samples_dropped}', help: 'Receiver samples dropped in the completed one-minute decoder window.'}
+      - {name: adsb_local_modes_last1m, path: '{.last1min.local.modes}', help: 'Local Mode S frames observed in the completed one-minute decoder window.'}
+      - {name: adsb_local_bad_last1m, path: '{.last1min.local.bad}', help: 'Locally received frames rejected as bad in the completed one-minute decoder window.'}
+      - {name: adsb_local_unknown_icao_last1m, path: '{.last1min.local.unknown_icao}', help: 'Locally received frames with unknown ICAO address in the completed one-minute decoder window.'}
+      - {name: adsb_local_accepted_zero_bit_last1m, path: '{.last1min.local.accepted[0]}', help: 'Locally accepted frames without bit correction in the completed one-minute decoder window.'}
+      - {name: adsb_local_accepted_one_bit_last1m, path: '{.last1min.local.accepted[1]}', help: 'Locally accepted frames with one corrected bit in the completed one-minute decoder window.'}
+      - {name: adsb_receiver_gain_db, path: '{.last1min.local.gain_db}', help: 'Receiver gain in decibels in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_airborne_last1m, path: '{.last1min.cpr.airborne}', help: 'Airborne CPR positions attempted in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_surface_last1m, path: '{.last1min.cpr.surface}', help: 'Surface CPR positions attempted in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_global_range_last1m, path: '{.last1min.cpr.global_range}', help: 'Global CPR positions rejected by range check in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_global_speed_last1m, path: '{.last1min.cpr.global_speed}', help: 'Global CPR positions rejected by speed check in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_local_range_last1m, path: '{.last1min.cpr.local_range}', help: 'Local CPR positions rejected by range check in the completed one-minute decoder window.'}
+      - {name: adsb_cpr_local_speed_last1m, path: '{.last1min.cpr.local_speed}', help: 'Local CPR positions rejected by speed check in the completed one-minute decoder window.'}
+      - {name: adsb_tracks_single_message_last1m, path: '{.last1min.tracks.single_message}', help: 'Tracks with only one message in the completed one-minute decoder window.'}
+      - {name: adsb_tracks_unreliable_last1m, path: '{.last1min.tracks.unreliable}', help: 'Unreliable tracks in the completed one-minute decoder window.'}
+      - {name: adsb_decoder_cpu_demod_ms_last1m, path: '{.last1min.cpu.demod}', help: 'Decoder demodulation CPU milliseconds in the completed one-minute decoder window.'}
+      - {name: adsb_decoder_cpu_reader_ms_last1m, path: '{.last1min.cpu.reader}', help: 'Decoder reader CPU milliseconds in the completed one-minute decoder window.'}
+      - {name: adsb_decoder_cpu_background_ms_last1m, path: '{.last1min.cpu.background}', help: 'Decoder background CPU milliseconds in the completed one-minute decoder window.'}
+      - {name: adsb_adaptive_gain_changes_last1m, path: '{.last1min.adaptive.gain_changes}', help: 'Adaptive gain changes in the completed one-minute decoder window.'}
+
+  receiver_aircraft:
+    metrics:
+      - {name: adsb_aircraft_snapshot_seconds, path: '{.now}', help: 'Decoder timestamp of the latest aircraft list snapshot.'}
+      - name: adsb_aircraft
+        type: object
+        path: '{.aircraft[*]}'
+        help: 'Aircraft currently present in the decoder aircraft list.'
+        labels:
+          hex: '{.hex}'
+        values:
+          in_view: 1
+      - name: adsb_aircraft_position
+        type: object
+        path: '{.aircraft[?(@.lat)]}'
+        help: 'Aircraft currently reporting a position in the decoder aircraft list.'
+        labels:
+          hex: '{.hex}'
+        values:
+          available: 1
+      - name: adsb_aircraft_callsign
+        type: object
+        path: '{.aircraft[?(@.flight)]}'
+        help: 'Aircraft currently reporting a callsign in the decoder aircraft list.'
+        labels:
+          hex: '{.hex}'
+        values:
+          available: 1
+      - name: adsb_aircraft_emergency_7700
+        type: object
+        path: '{.aircraft[?(@.squawk=="7700")]}'
+        help: 'Aircraft currently reporting emergency squawk 7700 in the decoder aircraft list.'
+        labels:
+          hex: '{.hex}'
+        values:
+          active: 1

@@ -1,0 +1,21 @@
+# Add these entries under scrape_configs in prometheus.yml. Replace example hosts and token paths.
+- job_name: adsb-receiver-stats
+  metrics_path: /probe
+  params:
+    module: [receiver_stats]
+    target: [http://127.0.0.1:8080/data/stats.json]
+  static_configs:
+    - targets: [adsb-json-exporter.example:9799]
+      labels: {instance: adsb}
+- job_name: adsb-receiver-aircraft
+  metrics_path: /probe
+  params:
+    module: [receiver_aircraft]
+    target: [http://127.0.0.1:8080/data/aircraft.json]
+  static_configs:
+    - targets: [adsb-json-exporter.example:9799]
+      labels: {instance: adsb}
+- job_name: node-exporter
+  static_configs:
+    - targets: [adsb-host.example:9100]
+      labels: {instance: adsb}
