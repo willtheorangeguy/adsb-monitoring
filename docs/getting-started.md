@@ -1,4 +1,4 @@
-# adsb-monitoring — Quickstart
+# Getting started
 
 ## Prerequisites
 
@@ -13,4 +13,4 @@ The example Prometheus scrape job names are `adsb-receiver-stats`, `adsb-receive
 ## Confirm data
 
 In Prometheus, check `up{job="adsb-receiver-stats"}`, `up{job="adsb-receiver-aircraft"}`, `up{job="node-exporter"}` and inspect a panel query in Grafana.
-For missing data, see [troubleshooting](./troubleshooting.md).
+For missing data, see [Troubleshooting](troubleshooting.md).

@@ -1,17 +1,17 @@
-# adsb-monitoring — Dashboard Usage
+# Dashboard usage
 
-Import the JSON files using **Grafana → Dashboards → New → Import**. Set the data source and variables listed in [configuration](./configuration.md).
+Import the JSON files using **Grafana → Dashboards → New → Import**. Set the data source and variables listed in [configuration](configuration.md).
 
 ## ADS-B Aircraft Viewer
 
-Source: [adsb-aircraft-viewer.json](../dashboards/adsb-aircraft-viewer.json). Refresh: `10s`.
+Source: [`dashboards/adsb-aircraft-viewer.json`](https://github.com/willtheorangeguy/adsb-monitoring/blob/HEAD/dashboards/adsb-aircraft-viewer.json). Refresh: `10s`.
 
 <!-- Screenshot: after adding adsb-aircraft-viewer.png to .github/icons/adsb-monitoring/, replace this comment with ![ADS-B Aircraft Viewer](https://raw.githubusercontent.com/willtheorangeguy/.github/main/icons/adsb-monitoring/adsb-aircraft-viewer.png). -->
 
 ### Panels
 
 | Panel | Type | What it shows |
-|---|---|---|
+| --- | --- | --- |
 | Current Flights | geomap | See the query reference below. |
 | Aircraft in View | stat | See the query reference below. |
 | Aircraft with Position | stat | See the query reference below. |
@@ -81,14 +81,14 @@ count(adsb_aircraft_emergency_7700_active{job="${job_adsb_receiver_aircraft}"}) 
 
 ## ADS-B Feeder & Receiver Stats
 
-Source: [adsb-feeder-stats.json](../dashboards/adsb-feeder-stats.json). Refresh: `30s`.
+Source: [`dashboards/adsb-feeder-stats.json`](https://github.com/willtheorangeguy/adsb-monitoring/blob/HEAD/dashboards/adsb-feeder-stats.json). Refresh: `30s`.
 
 <!-- Screenshot: after adding adsb-feeder-stats.png to .github/icons/adsb-monitoring/, replace this comment with ![ADS-B Feeder & Receiver Stats](https://raw.githubusercontent.com/willtheorangeguy/.github/main/icons/adsb-monitoring/adsb-feeder-stats.png). -->
 
 ### Panels
 
 | Panel | Type | What it shows |
-|---|---|---|
+| --- | --- | --- |
 | Aircraft in View | stat | See the query reference below. |
 | Aircraft with Position | stat | See the query reference below. |
 | Messages / second | stat | Completed decoder window, normalized by its actual duration. |

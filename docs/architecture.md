@@ -1,12 +1,41 @@
-# adsb-monitoring — Architecture
+# Architecture
 
-dump1090-fa JSON -> JSON Exporter /probe -> Prometheus -> Grafana. Infinity fetches aircraft.json for the live map and table. Node Exporter supplies node_systemd_unit_state.
+This project connects its data source to its Grafana dashboard through the components shown below.
+
+## Overview
+
+This diagram shows the data path for this project.
+
+```mermaid
+graph LR
+  A[dump1090-fa JSON] -->|probed by| B[JSON Exporter]
+  A -->|queried by| C[Grafana Infinity]
+  B -->|scraped by| D[Prometheus]
+  E[Node Exporter] -->|scraped by| D
+  C -->|renders in| F[Grafana dashboard]
+  D -->|queried by| F
+```
 
 ## Components
 
-- [dashboards/](../dashboards): Grafana dashboard definitions
-- [examples/](../examples): deployment and scrape examples
+### Data source
 
-## Data interpretation
+dump1090-fa JSON -> JSON Exporter -> Prometheus -> Grafana; Infinity reads aircraft JSON for the map.
 
-The map may work while the Prometheus probes fail, or vice versa. Feeder active state does not prove remote sites accepted data. The feeder dashboard adapts Grafana.com dashboard 18398; retain attribution.
+### Dashboard
+
+`dashboards/adsb-aircraft-viewer.json` contains the Grafana dashboard definition.
+
+## Data flow
+
+dump1090-fa JSON -> JSON Exporter -> Prometheus -> Grafana; Infinity reads aircraft JSON for the map. Grafana evaluates dashboard queries against the selected data source and label values.
+
+## Directory layout
+
+```text
+.
+├── dashboards/  Grafana dashboard JSON files
+├── examples/  Scrape and deployment examples
+├── docs/        Documentation source
+└── README.md    Project overview and quick links
+```
